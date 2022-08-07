@@ -1,0 +1,18 @@
+FROM node:14.14.0-alpine
+
+USER node
+
+RUN mkdir -p /home/node/app
+WORKDIR /home/node/app
+
+COPY --chown=node:node ./package.json .
+COPY --chown=node:node ./yarn.lock .
+
+RUN yarn install
+
+COPY . .
+
+RUN chmod 755 /home/node/app/node_modules/.bin/nodemon
+RUN ls -l /home/node/app/node_modules/.bin/nodemon
+
+CMD ["yarn", "start"]
