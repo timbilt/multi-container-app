@@ -1,0 +1,41 @@
+name: Deploy Frontend
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker build -t timbilt/multi-container-app-test -f ./client/Dockerfile.dev ./client
+      - run: docker run -e CI=true timbilt/multi-container-app-test yarn test -- --coverage
+      - name: Build production images
+        run: |
+          docker build -t timbilt/multi-container-app-client ./client
+          docker build -t timbilt/multi-container-app-nginx ./nginx
+          docker build -t timbilt/multi-container-app-server ./server
+          docker build -t timbilt/multi-container-app-worker ./worker
+      - name: Push images to Docker Hub
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push timbilt/multi-container-app-client
+          docker push timbilt/multi-container-app-nginx
+          docker push timbilt/multi-container-app-server
+          docker push timbilt/multi-container-app-worker
+
+      # - name: Generate deployment package
+      #   run: zip -r deploy.zip . -x '*.git*'
+
+      # - name: Deploy to EB
+      #   uses: einaregilsson/beanstalk-deploy@v18
+      #   with:
+      #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+      #     aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+      #     application_name: react-front-end
+      #     environment_name: Reactfrontend-env
+      #     existing_bucket_name: elasticbeanstalk-us-east-1-268277632823
+      #     region: us-east-1
+      #     version_label: ${{ github.sha }}
+      #     deployment_package: deploy.zip
