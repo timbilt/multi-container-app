@@ -6,27 +6,27 @@
       "image": "timbilt/multi-container-app-client",
       "hostname": "client",
       "essential": false,
-      "memory": 128
+      "memory": 1024
     },
     {
       "name": "server",
       "image": "timbilt/multi-container-app-server",
       "hostname": "api",
       "essential": false,
-      "memory": 128
+      "memory": 1024
     },
     {
       "name": "worker",
       "image": "timbilt/multi-container-app-worker",
       "hostname": "worker",
       "essential": false,
-      "memory": 128
+      "memory": 1024
     },
     {
       "name": "nginx",
       "image": "timbilt/multi-container-app-nginx",
       "essential": true,
-      "memory": 128,
+      "memory": 1024,
       "portMappings": [
         {
           "hostPort": 80,
