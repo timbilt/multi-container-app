@@ -17,4 +17,3 @@ FROM nginx
 EXPOSE 3000
 COPY ./nginx/default.conf /usr/share/nginx/html
 COPY --from=builder /home/node/app/build /usr/share/nginx/html
-CMD ["yarn", "start"]
