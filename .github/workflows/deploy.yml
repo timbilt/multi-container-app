@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: docker build -t timbilt/multi-container-app-test -f ./client/Dockerfile.dev ./client
+      - run: docker build -t timbilt/multi-container-app-test -f ./client/Dockerfile ./client
       - run: docker run -e CI=true timbilt/multi-container-app-test yarn test -- --coverage
       - name: Build production images
         run: |
