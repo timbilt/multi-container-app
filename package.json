@@ -1,0 +1,10 @@
+{
+  "name": "05-multi-container-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Delano Cooper <delanoscooper@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "goops": "^1.1.0"
+  }
+}
