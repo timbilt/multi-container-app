@@ -1,0 +1,77 @@
+name: Shared Deploy
+
+on:
+  workflow_call:
+    secrets:
+      dockerUser:
+        required: true
+      dockerPassword:
+        required: true
+      awsAccessKey:
+        required: true
+      awsSecretKey:
+        required: true
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build client
+      run: docker build --tag timbilt/multi-client ./client
+    
+    - name: Build gateway
+      run: docker build --tag timbilt/multi-gateway ./nginx
+
+    - name: Build api
+      run: docker build --tag timbilt/multi-api ./server
+
+    - name: Build worker
+      run: docker build --tag timbilt/multi-worker ./worker
+      
+    - name: Docker login
+      run: echo "${{ secrets.dockerPassword }}" | docker login -u ${{ secrets.dockerUser }} --password-stdin
+
+    - name: Push client
+      run: docker push timbilt/multi-client
+
+    - name: Push gateway
+      run: docker push timbilt/multi-gateway
+
+    - name: Push api
+      run: docker push timbilt/multi-api
+
+    - name: Push worker
+      run: docker push timbilt/multi-worker
+
+  deploy:
+
+    needs:
+      - build
+    
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v18
+        with:
+          aws_access_key: ${{ secrets.awsAccessKey }}
+          aws_secret_key: ${{ secrets.awsSecretKey }}
+          application_name: multi-docker
+          environment_name: multi-docker-env-1
+          existing_bucket_name: elasticbeanstalk-us-east-1-268277632823
+          region: us-east-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
+
+        

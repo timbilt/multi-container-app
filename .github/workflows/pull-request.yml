@@ -1,0 +1,23 @@
+name: Build and Test
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build the Docker image
+      run: docker build ./client --file Dockerfile.dev --tag timbilt/multi-client-local
+
+    - name: Run unit tests
+      run: docker run -e CI=true timbilt/multi-client-local yarn test
+
+        
+        
